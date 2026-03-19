@@ -10,6 +10,7 @@ import {
   LogOut,
   MessageSquare,
   BarChart3,
+  Star,
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { NavLink } from '@/components/NavLink';
