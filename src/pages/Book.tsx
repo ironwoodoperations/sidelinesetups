@@ -262,6 +262,7 @@ export default function Book() {
 
       // Create booking first (pending status)
       const { data: bookingData, error: bookingError } = await supabase.from('bookings').insert({
+        user_id: user?.id || null,
         full_name: form.fullName,
         contact_email: form.email,
         phone: form.phone,
