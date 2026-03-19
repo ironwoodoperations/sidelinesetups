@@ -26,6 +26,9 @@ export default function AdminSms() {
   const [message, setMessage] = useState('');
   const [selectedBooking, setSelectedBooking] = useState<string>('none');
   const [selectedTemplate, setSelectedTemplate] = useState<string>('none');
+  const [bulkEvent, setBulkEvent] = useState<string>('none');
+  const [bulkMessage, setBulkMessage] = useState('');
+  const [bulkSending, setBulkSending] = useState(false);
 
   // Template editor state
   const [tplDialog, setTplDialog] = useState(false);
