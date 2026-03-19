@@ -91,6 +91,8 @@ export default function Book() {
   const [discountApplied, setDiscountApplied] = useState(false);
   const [discountSavings, setDiscountSavings] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [squareReady, setSquareReady] = useState(false);
+  const [squareCard, setSquareCard] = useState<any>(null);
 
   const update = (partial: Partial<BookingForm>) => setForm(prev => ({ ...prev, ...partial }));
 

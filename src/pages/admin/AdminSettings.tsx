@@ -34,6 +34,9 @@ export default function AdminSettings() {
         service_fee_cents: (settings.service_fee_cents ?? 0).toString(),
         paypal_mode: settings.paypal_mode || 'sandbox',
         paypal_client_id: settings.paypal_client_id || '',
+        square_app_id: (settings as any).square_app_id || '',
+        square_location_id: (settings as any).square_location_id || '',
+        square_environment: (settings as any).square_environment || 'sandbox',
       });
     }
   }, [settings]);
