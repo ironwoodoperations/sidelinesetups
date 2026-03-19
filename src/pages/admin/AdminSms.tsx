@@ -231,8 +231,9 @@ export default function AdminSms() {
         </div>
 
         <Tabs defaultValue="send">
-          <TabsList>
+          <TabsList className="flex-wrap">
             <TabsTrigger value="send"><Send className="h-4 w-4 mr-1" /> Send</TabsTrigger>
+            <TabsTrigger value="bulk"><Users className="h-4 w-4 mr-1" /> Bulk SMS</TabsTrigger>
             <TabsTrigger value="automation"><Zap className="h-4 w-4 mr-1" /> Automation</TabsTrigger>
             <TabsTrigger value="templates"><FileText className="h-4 w-4 mr-1" /> Templates</TabsTrigger>
             <TabsTrigger value="history"><MessageSquare className="h-4 w-4 mr-1" /> History</TabsTrigger>
