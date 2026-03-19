@@ -102,6 +102,7 @@ export type Database = {
           team_name: string | null
           total_cents: number | null
           updated_at: string | null
+          user_id: string | null
           xero_invoice_id: string | null
         }
         Insert: {
@@ -144,6 +145,7 @@ export type Database = {
           team_name?: string | null
           total_cents?: number | null
           updated_at?: string | null
+          user_id?: string | null
           xero_invoice_id?: string | null
         }
         Update: {
@@ -186,6 +188,7 @@ export type Database = {
           team_name?: string | null
           total_cents?: number | null
           updated_at?: string | null
+          user_id?: string | null
           xero_invoice_id?: string | null
         }
         Relationships: [
@@ -602,6 +605,39 @@ export type Database = {
           state?: string | null
           street_address?: string | null
           zip?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          coach_name: string | null
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+          team_name: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          coach_name?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          team_name?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          coach_name?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          team_name?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
