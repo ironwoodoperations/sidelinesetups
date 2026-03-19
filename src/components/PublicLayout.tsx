@@ -7,8 +7,8 @@ import logoIcon from '@/assets/logo-icon.png';
 const navLinks = [
   { label: 'Events', path: '/events' },
   { label: 'Packages', path: '/packages' },
+  { label: 'My Bookings', path: '/customer-login' },
   { label: 'FAQ', path: '/faq' },
-  { label: 'Our Story', path: '/our-story' },
 ];
 
 export function Navbar() {
