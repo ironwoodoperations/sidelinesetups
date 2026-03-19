@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Tent, Armchair, Clock, Star, ChevronRight } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tent, Armchair, Clock, Star, ChevronRight } from 'lucide-react';
 import { usePackages } from '@/hooks/useSupabaseData';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import PublicLayout from '@/components/PublicLayout';
 import heroImage from '@/assets/hero-softball.jpg';
 
@@ -13,10 +15,10 @@ const howItWorks = [
   { icon: Clock, title: 'Flexible Pricing', desc: 'Pay per game, per day, or the full weekend. Add extras like sidewalls, lights, or speakers à la carte.' },
 ];
 
-const testimonials = [
-  { name: 'Sarah M.', team: 'Tyler Thunder 12U', quote: "Game changer! We showed up, everything was already set up. The kids loved the misting fan. We'll never go back to hauling our own stuff." },
-  { name: 'Coach Davis', team: 'East Texas Elite', quote: "I tell every parent on my team about Sideline Setups. The VIP Suite with the speaker made us the hangout spot all weekend." },
-  { name: 'Jessica R.', team: 'Longview Lightning', quote: "Worth every penny. Three tournaments in the Texas heat and we were the only ones actually comfortable. The crew was so friendly too!" },
+const fallbackTestimonials = [
+  { name: 'Sarah M.', team: 'Tyler Thunder 12U', quote: "Game changer! We showed up, everything was already set up. The kids loved the misting fan. We'll never go back to hauling our own stuff.", rating: 5 },
+  { name: 'Coach Davis', team: 'East Texas Elite', quote: "I tell every parent on my team about Sideline Setups. The VIP Suite with the speaker made us the hangout spot all weekend.", rating: 5 },
+  { name: 'Jessica R.', team: 'Longview Lightning', quote: "Worth every penny. Three tournaments in the Texas heat and we were the only ones actually comfortable. The crew was so friendly too!", rating: 5 },
 ];
 
 export default function Index() {
