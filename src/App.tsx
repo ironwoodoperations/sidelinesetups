@@ -16,6 +16,7 @@ import TermsAndConditions from "./pages/TermsAndConditions";
 import CustomerLogin from "./pages/CustomerLogin";
 import MyBookings from "./pages/MyBookings";
 import Profile from "./pages/Profile";
+import Receipt from "./pages/Receipt";
 import AdminLogin from "./pages/AdminLogin";
 import AdminBookings from "./pages/admin/AdminBookings";
 import AdminEvents from "./pages/admin/AdminEvents";
@@ -51,6 +52,7 @@ const App = () => (
             <Route path="/customer-login" element={<CustomerLogin />} />
             <Route path="/my-bookings" element={<MyBookings />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/receipt/:id" element={<Receipt />} />
             <Route path="/admin-login" element={<AdminLogin />} />
             <Route path="/admin" element={<AdminBookings />} />
             <Route path="/admin/events" element={<AdminEvents />} />
