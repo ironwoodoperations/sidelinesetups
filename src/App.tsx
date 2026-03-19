@@ -14,6 +14,15 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import CustomerLogin from "./pages/CustomerLogin";
 import MyBookings from "./pages/MyBookings";
+import AdminLogin from "./pages/AdminLogin";
+import AdminBookings from "./pages/admin/AdminBookings";
+import AdminEvents from "./pages/admin/AdminEvents";
+import AdminPackages from "./pages/admin/AdminPackages";
+import AdminParks from "./pages/admin/AdminParks";
+import AdminEquipment from "./pages/admin/AdminEquipment";
+import AdminDiscounts from "./pages/admin/AdminDiscounts";
+import AdminFaq from "./pages/admin/AdminFaq";
+import AdminSettings from "./pages/admin/AdminSettings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +45,15 @@ const App = () => (
           <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
           <Route path="/customer-login" element={<CustomerLogin />} />
           <Route path="/my-bookings" element={<MyBookings />} />
+          <Route path="/admin-login" element={<AdminLogin />} />
+          <Route path="/admin" element={<AdminBookings />} />
+          <Route path="/admin/events" element={<AdminEvents />} />
+          <Route path="/admin/packages" element={<AdminPackages />} />
+          <Route path="/admin/parks" element={<AdminParks />} />
+          <Route path="/admin/equipment" element={<AdminEquipment />} />
+          <Route path="/admin/discounts" element={<AdminDiscounts />} />
+          <Route path="/admin/faq" element={<AdminFaq />} />
+          <Route path="/admin/settings" element={<AdminSettings />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
