@@ -1,13 +1,14 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, User, LogOut } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/useAuth';
 import logoIcon from '@/assets/logo-icon.png';
 
 const navLinks = [
   { label: 'Events', path: '/events' },
   { label: 'Packages', path: '/packages' },
-  { label: 'My Bookings', path: '/customer-login' },
+  { label: 'My Bookings', path: '/my-bookings' },
   { label: 'FAQ', path: '/faq' },
 ];
 
