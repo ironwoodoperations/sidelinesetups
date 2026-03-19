@@ -8,6 +8,7 @@ import {
   Tag,
   ClipboardList,
   LogOut,
+  MessageSquare,
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { NavLink } from '@/components/NavLink';
@@ -36,6 +37,7 @@ const configItems = [
   { title: 'Equipment', url: '/admin/equipment', icon: Wrench },
   { title: 'Discount Codes', url: '/admin/discounts', icon: Tag },
   { title: 'FAQ', url: '/admin/faq', icon: HelpCircle },
+  { title: 'SMS', url: '/admin/sms', icon: MessageSquare },
   { title: 'Site Settings', url: '/admin/settings', icon: Settings },
 ];
 
