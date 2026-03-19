@@ -9,7 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { User, Save, ArrowLeft } from 'lucide-react';
+import { User, Save, ArrowLeft, MessageSquare } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 
