@@ -23,6 +23,8 @@ import AdminEquipment from "./pages/admin/AdminEquipment";
 import AdminDiscounts from "./pages/admin/AdminDiscounts";
 import AdminFaq from "./pages/admin/AdminFaq";
 import AdminSettings from "./pages/admin/AdminSettings";
+import StaffLogin from "./pages/StaffLogin";
+import StaffDashboard from "./pages/StaffDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -54,6 +56,8 @@ const App = () => (
           <Route path="/admin/discounts" element={<AdminDiscounts />} />
           <Route path="/admin/faq" element={<AdminFaq />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="/staff-login" element={<StaffLogin />} />
+          <Route path="/staff" element={<StaffDashboard />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
