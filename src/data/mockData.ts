@@ -1,4 +1,6 @@
 import { Event, Package, Park, Field, Spot, Equipment, AddOn, FaqItem } from '@/types';
+import fieldDiagram1 from '@/assets/field-diagram-1.jpg';
+import fieldDiagram2 from '@/assets/field-diagram-2.jpg';
 
 export const mockEvents: Event[] = [
   {
