@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
-import { MessageSquare, Send, FileText, Plus, Pencil, Trash2, Zap } from 'lucide-react';
+import { MessageSquare, Send, FileText, Plus, Pencil, Trash2, Zap, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
@@ -26,6 +26,9 @@ export default function AdminSms() {
   const [message, setMessage] = useState('');
   const [selectedBooking, setSelectedBooking] = useState<string>('none');
   const [selectedTemplate, setSelectedTemplate] = useState<string>('none');
+  const [bulkEvent, setBulkEvent] = useState<string>('none');
+  const [bulkMessage, setBulkMessage] = useState('');
+  const [bulkSending, setBulkSending] = useState(false);
 
   // Template editor state
   const [tplDialog, setTplDialog] = useState(false);
@@ -86,6 +89,16 @@ export default function AdminSms() {
         .from('sms_auto_rules')
         .select('*')
         .order('created_at', { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Fetch events for bulk SMS
+  const { data: events } = useQuery({
+    queryKey: ['admin-events-sms'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('events').select('id, name').eq('archived', false).eq('is_active', true).order('start_date', { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -218,8 +231,9 @@ export default function AdminSms() {
         </div>
 
         <Tabs defaultValue="send">
-          <TabsList>
+          <TabsList className="flex-wrap">
             <TabsTrigger value="send"><Send className="h-4 w-4 mr-1" /> Send</TabsTrigger>
+            <TabsTrigger value="bulk"><Users className="h-4 w-4 mr-1" /> Bulk SMS</TabsTrigger>
             <TabsTrigger value="automation"><Zap className="h-4 w-4 mr-1" /> Automation</TabsTrigger>
             <TabsTrigger value="templates"><FileText className="h-4 w-4 mr-1" /> Templates</TabsTrigger>
             <TabsTrigger value="history"><MessageSquare className="h-4 w-4 mr-1" /> History</TabsTrigger>
@@ -294,6 +308,68 @@ export default function AdminSms() {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          {/* BULK SMS TAB */}
+          <TabsContent value="bulk">
+            <Card>
+              <CardHeader><CardTitle className="text-lg">Bulk SMS to Event</CardTitle></CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground">Send a message to all customers booked for a specific event who have SMS consent.</p>
+                <div className="space-y-2">
+                  <Label>Select Event</Label>
+                  <Select value={bulkEvent} onValueChange={setBulkEvent}>
+                    <SelectTrigger><SelectValue placeholder="Choose an event..." /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Select an event</SelectItem>
+                      {events?.map(ev => (
+                        <SelectItem key={ev.id} value={ev.id}>{ev.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Message</Label>
+                  <Textarea placeholder="Type your bulk message..." value={bulkMessage} onChange={e => setBulkMessage(e.target.value)} rows={4} />
+                </div>
+                <Button
+                  disabled={bulkEvent === 'none' || !bulkMessage || bulkSending}
+                  className="w-full bg-gradient-cta text-primary-foreground font-heading"
+                  onClick={async () => {
+                    setBulkSending(true);
+                    try {
+                      const { data: eventBookings, error } = await supabase
+                        .from('bookings')
+                        .select('id, phone, full_name, sms_consent_given')
+                        .eq('event_id', bulkEvent)
+                        .eq('archived', false)
+                        .not('phone', 'is', null);
+                      if (error) throw error;
+                      const eligible = eventBookings?.filter(b => b.sms_consent_given && b.phone) || [];
+                      if (eligible.length === 0) { toast.error('No eligible customers with SMS consent found'); setBulkSending(false); return; }
+                      const admin = JSON.parse(sessionStorage.getItem('ss.admin') || '{}');
+                      let sent = 0;
+                      for (const b of eligible) {
+                        const { error: sendErr } = await supabase.functions.invoke('send-sms', {
+                          body: { phone: b.phone, message: bulkMessage, booking_id: b.id, sent_by: admin.name || 'admin' },
+                        });
+                        if (!sendErr) sent++;
+                      }
+                      toast.success(`Sent to ${sent}/${eligible.length} customers`);
+                      setBulkMessage('');
+                      qc.invalidateQueries({ queryKey: ['sms-logs'] });
+                    } catch (err: any) {
+                      toast.error(err.message || 'Bulk send failed');
+                    } finally {
+                      setBulkSending(false);
+                    }
+                  }}
+                >
+                  <Users className="h-4 w-4 mr-2" />
+                  {bulkSending ? 'Sending...' : 'Send to All'}
+                </Button>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* AUTOMATION TAB */}

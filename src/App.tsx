@@ -17,6 +17,9 @@ import CustomerLogin from "./pages/CustomerLogin";
 import MyBookings from "./pages/MyBookings";
 import Profile from "./pages/Profile";
 import Receipt from "./pages/Receipt";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+import LeaveReview from "./pages/LeaveReview";
 import AdminLogin from "./pages/AdminLogin";
 import AdminBookings from "./pages/admin/AdminBookings";
 import AdminEvents from "./pages/admin/AdminEvents";
@@ -25,6 +28,7 @@ import AdminParks from "./pages/admin/AdminParks";
 import AdminEquipment from "./pages/admin/AdminEquipment";
 import AdminDiscounts from "./pages/admin/AdminDiscounts";
 import AdminFaq from "./pages/admin/AdminFaq";
+import AdminReviews from "./pages/admin/AdminReviews";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminSms from "./pages/admin/AdminSms";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
@@ -52,6 +56,9 @@ const App = () => (
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
             <Route path="/customer-login" element={<CustomerLogin />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/leave-review" element={<LeaveReview />} />
             <Route path="/my-bookings" element={<MyBookings />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/receipt/:id" element={<Receipt />} />
@@ -63,6 +70,7 @@ const App = () => (
             <Route path="/admin/equipment" element={<AdminEquipment />} />
             <Route path="/admin/discounts" element={<AdminDiscounts />} />
             <Route path="/admin/faq" element={<AdminFaq />} />
+            <Route path="/admin/reviews" element={<AdminReviews />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
             <Route path="/admin/sms" element={<AdminSms />} />
             <Route path="/admin/analytics" element={<AdminAnalytics />} />
