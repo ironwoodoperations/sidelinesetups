@@ -67,7 +67,7 @@ export function AdminSidebar() {
           )}
         </div>
 
-        <SidebarGroup defaultOpen>
+        <SidebarGroup>
           <SidebarGroupLabel>Manage</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
