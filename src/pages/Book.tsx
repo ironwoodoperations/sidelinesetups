@@ -261,6 +261,9 @@ export default function Book() {
       const selectedEvt = (events || []).find(e => e.id === form.eventId);
 
       // Create booking first (pending status)
+      // Calculate loyalty points (1 point per dollar spent)
+      const pointsEarned = Math.floor(totalCents / 100);
+
       const { data: bookingData, error: bookingError } = await supabase.from('bookings').insert({
         user_id: user?.id || null,
         full_name: form.fullName,
@@ -283,12 +286,18 @@ export default function Book() {
         add_on_cents: addOnCents,
         total_cents: totalCents,
         discount_amount_cents: discountSavings,
+        loyalty_points_earned: pointsEarned,
         agreed_to_terms: form.agreedToTerms,
         sms_consent_given: form.smsConsent,
         notes: form.notes || null,
         status: 'pending',
       }).select('id').single();
       if (bookingError) throw bookingError;
+
+      // Award loyalty points to user profile
+      if (user?.id && pointsEarned > 0) {
+        await supabase.rpc('increment_loyalty_points' as any, { _user_id: user.id, _points: pointsEarned }).catch(() => {});
+      }
 
       // If Square is configured and card tokenization available, process payment
       if (squareCard && squareAppId && squareLocationId && totalCents > 0) {
