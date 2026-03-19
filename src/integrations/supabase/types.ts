@@ -695,6 +695,38 @@ export type Database = {
         }
         Relationships: []
       }
+      sms_auto_rules: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          status_trigger: string
+          template_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          status_trigger: string
+          template_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          status_trigger?: string
+          template_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sms_auto_rules_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "sms_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sms_logs: {
         Row: {
           booking_id: string | null
