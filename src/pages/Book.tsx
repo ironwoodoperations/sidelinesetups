@@ -68,6 +68,7 @@ interface BookingForm {
 
 export default function Book() {
   const [params] = useSearchParams();
+  const { user, profile } = useAuth();
 
   const [form, setForm] = useState<BookingForm>({
     packageId: params.get('package') || '',
@@ -89,6 +90,20 @@ export default function Book() {
     smsConsent: false,
     discountCode: '',
   });
+
+  // Pre-fill from profile
+  useEffect(() => {
+    if (profile && !form.fullName && !form.email) {
+      setForm(prev => ({
+        ...prev,
+        fullName: prev.fullName || profile.full_name || '',
+        email: prev.email || profile.email || '',
+        phone: prev.phone || profile.phone || '',
+        teamName: prev.teamName || profile.team_name || '',
+        coachName: prev.coachName || profile.coach_name || '',
+      }));
+    }
+  }, [profile]);
 
   const [discountApplied, setDiscountApplied] = useState(false);
   const [discountSavings, setDiscountSavings] = useState(0);
