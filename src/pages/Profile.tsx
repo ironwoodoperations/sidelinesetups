@@ -39,6 +39,7 @@ export default function Profile() {
         phone: profile.phone || '',
         team_name: profile.team_name || '',
         coach_name: profile.coach_name || '',
+        sms_opt_in: (profile as any).sms_opt_in ?? true,
       });
     }
   }, [profile]);
