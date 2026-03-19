@@ -25,6 +25,31 @@ export default function Index() {
   const { data: packages, isLoading } = usePackages();
   const topPackages = (packages || []).slice(0, 3);
 
+  // Fetch real reviews from DB
+  const { data: dbReviews } = useQuery({
+    queryKey: ['public-reviews'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('reviews')
+        .select('*, bookings(full_name, team_name)')
+        .eq('is_visible', true)
+        .gte('rating', 4)
+        .order('created_at', { ascending: false })
+        .limit(6);
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const testimonials = (dbReviews && dbReviews.length >= 3)
+    ? dbReviews.slice(0, 3).map(r => ({
+        name: (r.bookings as any)?.full_name || 'Happy Customer',
+        team: (r.bookings as any)?.team_name || '',
+        quote: r.comment || 'Great experience!',
+        rating: r.rating,
+      }))
+    : fallbackTestimonials;
+
   return (
     <PublicLayout>
       {/* Hero */}
