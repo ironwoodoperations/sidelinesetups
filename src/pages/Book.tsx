@@ -566,13 +566,27 @@ export default function Book() {
           <section className="mb-16 animate-fade-in-up">
             <h2 className="font-heading text-xl font-bold text-foreground mb-4">10. Payment</h2>
             <Card className="border-2 border-border bg-secondary">
-              <CardContent className="p-6 text-center">
-                <ShoppingCart className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-                <p className="text-muted-foreground mb-4">PayPal integration coming soon. For now, submit your booking as a demo.</p>
-                <Button onClick={handleSubmitBooking} disabled={submitting}
-                  className="bg-gradient-cta text-primary-foreground shadow-glow-amber font-heading font-semibold">
-                  {submitting ? 'Submitting…' : 'Complete Booking (Demo)'}
-                </Button>
+              <CardContent className="p-6">
+                {squareAppId ? (
+                  <>
+                    <p className="text-sm text-muted-foreground mb-4">Enter your card details below to complete payment.</p>
+                    <div ref={squareCardRef} className="mb-4 min-h-[50px]" />
+                    {!squareReady && <p className="text-xs text-muted-foreground">Loading payment form…</p>}
+                    <Button onClick={handleSubmitBooking} disabled={submitting || !squareCard}
+                      className="w-full bg-gradient-cta text-primary-foreground shadow-glow-amber font-heading font-semibold">
+                      {submitting ? 'Processing…' : `Pay ${formatCurrency(totalCents)}`}
+                    </Button>
+                  </>
+                ) : (
+                  <div className="text-center">
+                    <ShoppingCart className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+                    <p className="text-muted-foreground mb-4">Payment is not yet configured. Submit your booking and pay later.</p>
+                    <Button onClick={handleSubmitBooking} disabled={submitting}
+                      className="bg-gradient-cta text-primary-foreground shadow-glow-amber font-heading font-semibold">
+                      {submitting ? 'Submitting…' : 'Complete Booking'}
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </section>
