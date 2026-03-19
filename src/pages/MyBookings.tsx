@@ -138,13 +138,20 @@ export default function MyBookings() {
                   </div>
 
                   <div className="flex items-center justify-between pt-3 border-t border-border">
-                    <div className="text-sm">
-                      {booking.fields?.name && (
-                        <span className="text-muted-foreground">{booking.fields.name}</span>
-                      )}
-                      {booking.spots?.label && (
-                        <span className="text-muted-foreground"> · Spot {booking.spots.label}</span>
-                      )}
+                    <div className="flex items-center gap-3">
+                      <div className="text-sm">
+                        {booking.fields?.name && (
+                          <span className="text-muted-foreground">{booking.fields.name}</span>
+                        )}
+                        {booking.spots?.label && (
+                          <span className="text-muted-foreground"> · Spot {booking.spots.label}</span>
+                        )}
+                      </div>
+                      <Button asChild variant="ghost" size="sm" className="text-xs">
+                        <Link to={`/receipt/${booking.id}`}>
+                          <FileText className="h-3.5 w-3.5 mr-1" /> Receipt
+                        </Link>
+                      </Button>
                     </div>
                     <span className="font-heading font-bold text-accent">
                       ${((booking.total_cents || 0) / 100).toFixed(2)}
