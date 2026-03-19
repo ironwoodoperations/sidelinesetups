@@ -43,6 +43,17 @@ export function Navbar() {
           <Button asChild className="bg-gradient-cta text-primary-foreground hover:opacity-90 shadow-glow-amber font-heading font-semibold">
             <Link to="/book">Book Now</Link>
           </Button>
+          {user ? (
+            <div className="flex items-center gap-2">
+              <Link to="/my-bookings" className="text-sm text-muted-foreground hover:text-accent">
+                <User className="h-4 w-4 inline mr-1" />{profile?.full_name || 'Account'}
+              </Link>
+            </div>
+          ) : (
+            <Button asChild variant="ghost" size="sm">
+              <Link to="/customer-login">Sign In</Link>
+            </Button>
+          )}
         </nav>
 
         {/* Mobile hamburger */}
