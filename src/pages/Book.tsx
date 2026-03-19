@@ -243,7 +243,9 @@ export default function Book() {
     setSubmitting(true);
     try {
       const selectedEvt = (events || []).find(e => e.id === form.eventId);
-      const { error } = await supabase.from('bookings').insert({
+
+      // Create booking first (pending status)
+      const { data: bookingData, error: bookingError } = await supabase.from('bookings').insert({
         full_name: form.fullName,
         contact_email: form.email,
         phone: form.phone,
@@ -268,10 +270,36 @@ export default function Book() {
         sms_consent_given: form.smsConsent,
         notes: form.notes || null,
         status: 'pending',
-      });
-      if (error) throw error;
-      toast.success('Booking created successfully!');
-      window.location.href = '/thank-you?b=demo';
+      }).select('id').single();
+      if (bookingError) throw bookingError;
+
+      // If Square is configured and card tokenization available, process payment
+      if (squareCard && squareAppId && squareLocationId && totalCents > 0) {
+        const tokenResult = await squareCard.tokenize();
+        if (tokenResult.status !== 'OK') {
+          throw new Error(tokenResult.errors?.[0]?.message || 'Card tokenization failed');
+        }
+
+        const { data: payResult, error: payError } = await supabase.functions.invoke('create-square-payment', {
+          body: {
+            sourceId: tokenResult.token,
+            amountCents: totalCents,
+            currency: 'USD',
+            bookingId: bookingData.id,
+            locationId: squareLocationId,
+            environment: squareEnv,
+          },
+        });
+
+        if (payError) throw new Error(payError.message || 'Payment processing failed');
+        if (payResult?.error) throw new Error(payResult.error);
+
+        toast.success('Payment successful! Booking confirmed.');
+      } else {
+        toast.success('Booking created successfully!');
+      }
+
+      window.location.href = `/thank-you?b=${bookingData.id}`;
     } catch (err: any) {
       toast.error(err.message || 'Failed to create booking');
     } finally {
