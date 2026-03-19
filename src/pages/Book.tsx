@@ -13,6 +13,7 @@ import PublicLayout from '@/components/PublicLayout';
 import SpotPicker from '@/components/SpotPicker';
 import { supabase } from '@/integrations/supabase/client';
 import { useEvents, usePackages, useParks, useFields, useSpots, useAddOns, useLocks } from '@/hooks/useSupabaseData';
+import { useQuery } from '@tanstack/react-query';
 import fieldDiagram1 from '@/assets/field-diagram-1.jpg';
 import fieldDiagram2 from '@/assets/field-diagram-2.jpg';
 

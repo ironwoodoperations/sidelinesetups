@@ -125,6 +125,23 @@ export default function AdminSettings() {
                 </div>
               </CardContent>
             </Card>
+            <Card>
+              <CardHeader><CardTitle className="text-lg">Square Payments</CardTitle></CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Application ID</Label>
+                  <Input value={form.square_app_id || ''} disabled={!editing} onChange={e => setForm(f => ({ ...f, square_app_id: e.target.value }))} placeholder="sq0idp-..." />
+                </div>
+                <div className="space-y-2">
+                  <Label>Location ID</Label>
+                  <Input value={form.square_location_id || ''} disabled={!editing} onChange={e => setForm(f => ({ ...f, square_location_id: e.target.value }))} placeholder="L..." />
+                </div>
+                <div className="space-y-2">
+                  <Label>Environment</Label>
+                  <Input value={form.square_environment || ''} disabled={!editing} onChange={e => setForm(f => ({ ...f, square_environment: e.target.value }))} placeholder="sandbox or production" />
+                </div>
+              </CardContent>
+            </Card>
           </div>
         )}
       </div>
