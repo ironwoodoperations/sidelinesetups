@@ -615,6 +615,7 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          loyalty_points: number | null
           phone: string | null
           sms_opt_in: boolean | null
           team_name: string | null
@@ -626,6 +627,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id: string
+          loyalty_points?: number | null
           phone?: string | null
           sms_opt_in?: boolean | null
           team_name?: string | null
@@ -637,6 +639,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          loyalty_points?: number | null
           phone?: string | null
           sms_opt_in?: boolean | null
           team_name?: string | null
