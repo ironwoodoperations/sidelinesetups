@@ -15,6 +15,7 @@ const navLinks = [
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
+  const { user, profile, signOut } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border">
