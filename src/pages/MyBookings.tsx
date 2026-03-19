@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Calendar, MapPin, Package, ArrowLeft } from 'lucide-react';
+import { Calendar, MapPin, Package, LogOut, User } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import PublicLayout from '@/components/PublicLayout';
 import { format } from 'date-fns';
 
@@ -23,22 +24,20 @@ const statusColors: Record<string, string> = {
 
 export default function MyBookings() {
   const navigate = useNavigate();
+  const { user, profile, loading: authLoading, signOut } = useAuth();
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [phone, setPhone] = useState('');
 
   useEffect(() => {
-    const stored = sessionStorage.getItem('ss.customer_phone');
-    if (!stored) {
+    if (authLoading) return;
+    if (!user) {
       navigate('/customer-login');
       return;
     }
-    setPhone(stored);
 
     const fetchBookings = async () => {
-      // Normalize phone: strip non-digits for matching
-      const digits = stored.replace(/\D/g, '');
-      const { data, error } = await supabase
+      // Fetch by user_id OR by matching email/phone from profile
+      let query = supabase
         .from('bookings')
         .select(`
           *,
@@ -48,20 +47,35 @@ export default function MyBookings() {
           fields:field_id (name),
           spots:spot_id (label)
         `)
-        .or(`phone.ilike.%${digits}%,phone.ilike.%${stored}%`)
         .order('created_at', { ascending: false });
 
+      // Match by user_id or contact_email
+      const email = user.email || profile?.email || '';
+      query = query.or(`user_id.eq.${user.id},contact_email.ilike.${email}`);
+
+      const { data, error } = await query;
       if (!error && data) setBookings(data);
       setLoading(false);
     };
 
     fetchBookings();
-  }, [navigate]);
+  }, [user, authLoading, profile, navigate]);
 
-  const handleLogout = () => {
-    sessionStorage.removeItem('ss.customer_phone');
+  const handleLogout = async () => {
+    await signOut();
     navigate('/customer-login');
   };
+
+  if (authLoading) {
+    return (
+      <PublicLayout>
+        <div className="container py-12 max-w-2xl">
+          <Skeleton className="h-10 w-48 mb-4" />
+          <Skeleton className="h-40 rounded-lg" />
+        </div>
+      </PublicLayout>
+    );
+  }
 
   return (
     <PublicLayout>
@@ -69,10 +83,10 @@ export default function MyBookings() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="font-heading text-2xl md:text-3xl font-bold text-foreground">My Bookings</h1>
-            <p className="text-sm text-muted-foreground">Phone: {phone}</p>
+            <p className="text-sm text-muted-foreground">{profile?.full_name || user?.email}</p>
           </div>
           <Button variant="ghost" size="sm" onClick={handleLogout}>
-            <ArrowLeft className="h-4 w-4 mr-1" /> Change Phone
+            <LogOut className="h-4 w-4 mr-1" /> Sign Out
           </Button>
         </div>
 
@@ -84,7 +98,7 @@ export default function MyBookings() {
           <div className="text-center py-16">
             <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="font-heading text-xl font-bold text-foreground mb-2">No bookings found</h3>
-            <p className="text-muted-foreground mb-6">We couldn't find any bookings for this phone number.</p>
+            <p className="text-muted-foreground mb-6">You haven't made any bookings yet.</p>
             <Button asChild className="bg-gradient-cta text-primary-foreground font-heading font-semibold">
               <Link to="/book">Book Your First Setup</Link>
             </Button>
