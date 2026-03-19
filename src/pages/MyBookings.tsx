@@ -152,6 +152,13 @@ export default function MyBookings() {
                           <FileText className="h-3.5 w-3.5 mr-1" /> Receipt
                         </Link>
                       </Button>
+                      {['closed', 'picked_up', 'paid'].includes(booking.status || '') && (
+                        <Button asChild variant="ghost" size="sm" className="text-xs">
+                          <Link to={`/leave-review?booking=${booking.id}`}>
+                            <Star className="h-3.5 w-3.5 mr-1" /> Review
+                          </Link>
+                        </Button>
+                      )}
                     </div>
                     <span className="font-heading font-bold text-accent">
                       ${((booking.total_cents || 0) / 100).toFixed(2)}
