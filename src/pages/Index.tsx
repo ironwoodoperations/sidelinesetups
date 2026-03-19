@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Tent, Armchair, Clock, Star, ChevronRight } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tent, Armchair, Clock, Star, ChevronRight } from 'lucide-react';
 import { usePackages } from '@/hooks/useSupabaseData';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import PublicLayout from '@/components/PublicLayout';
 import heroImage from '@/assets/hero-softball.jpg';
 
@@ -13,15 +15,40 @@ const howItWorks = [
   { icon: Clock, title: 'Flexible Pricing', desc: 'Pay per game, per day, or the full weekend. Add extras like sidewalls, lights, or speakers à la carte.' },
 ];
 
-const testimonials = [
-  { name: 'Sarah M.', team: 'Tyler Thunder 12U', quote: "Game changer! We showed up, everything was already set up. The kids loved the misting fan. We'll never go back to hauling our own stuff." },
-  { name: 'Coach Davis', team: 'East Texas Elite', quote: "I tell every parent on my team about Sideline Setups. The VIP Suite with the speaker made us the hangout spot all weekend." },
-  { name: 'Jessica R.', team: 'Longview Lightning', quote: "Worth every penny. Three tournaments in the Texas heat and we were the only ones actually comfortable. The crew was so friendly too!" },
+const fallbackTestimonials = [
+  { name: 'Sarah M.', team: 'Tyler Thunder 12U', quote: "Game changer! We showed up, everything was already set up. The kids loved the misting fan. We'll never go back to hauling our own stuff.", rating: 5 },
+  { name: 'Coach Davis', team: 'East Texas Elite', quote: "I tell every parent on my team about Sideline Setups. The VIP Suite with the speaker made us the hangout spot all weekend.", rating: 5 },
+  { name: 'Jessica R.', team: 'Longview Lightning', quote: "Worth every penny. Three tournaments in the Texas heat and we were the only ones actually comfortable. The crew was so friendly too!", rating: 5 },
 ];
 
 export default function Index() {
   const { data: packages, isLoading } = usePackages();
   const topPackages = (packages || []).slice(0, 3);
+
+  // Fetch real reviews from DB
+  const { data: dbReviews } = useQuery({
+    queryKey: ['public-reviews'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('reviews')
+        .select('*, bookings(full_name, team_name)')
+        .eq('is_visible', true)
+        .gte('rating', 4)
+        .order('created_at', { ascending: false })
+        .limit(6);
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const testimonials = (dbReviews && dbReviews.length >= 3)
+    ? dbReviews.slice(0, 3).map(r => ({
+        name: (r.bookings as any)?.full_name || 'Happy Customer',
+        team: (r.bookings as any)?.team_name || '',
+        quote: r.comment || 'Great experience!',
+        rating: r.rating,
+      }))
+    : fallbackTestimonials;
 
   return (
     <PublicLayout>
@@ -129,9 +156,9 @@ export default function Index() {
             {testimonials.map((t, i) => (
               <Card key={i} className="bg-primary-foreground/10 border-primary-foreground/20 backdrop-blur">
                 <CardContent className="pt-6 pb-4">
-                  <div className="flex gap-1 mb-3">{[...Array(5)].map((_, si) => <Star key={si} className="h-4 w-4 fill-accent text-accent" />)}</div>
+                  <div className="flex gap-1 mb-3">{[...Array(5)].map((_, si) => <Star key={si} className={`h-4 w-4 ${si < t.rating ? 'fill-accent text-accent' : 'text-primary-foreground/20'}`} />)}</div>
                   <p className="text-sm text-primary-foreground/90 mb-4 italic">"{t.quote}"</p>
-                  <div><p className="font-heading font-semibold text-sm">{t.name}</p><p className="text-xs text-primary-foreground/60">{t.team}</p></div>
+                  <div><p className="font-heading font-semibold text-sm">{t.name}</p>{t.team && <p className="text-xs text-primary-foreground/60">{t.team}</p>}</div>
                 </CardContent>
               </Card>
             ))}
