@@ -54,7 +54,8 @@ export default function Profile() {
         phone: form.phone || null,
         team_name: form.team_name || null,
         coach_name: form.coach_name || null,
-      }).eq('id', user.id);
+        sms_opt_in: form.sms_opt_in,
+      } as any).eq('id', user.id);
       if (error) throw error;
       await refreshProfile();
       toast.success('Profile updated!');
