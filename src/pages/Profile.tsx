@@ -163,3 +163,65 @@ export default function Profile() {
     </PublicLayout>
   );
 }
+
+function LoyaltyPointsDisplay({ userId }: { userId?: string }) {
+  const { data: profileData } = useQuery({
+    queryKey: ['loyalty-points', userId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('loyalty_points')
+        .eq('id', userId!)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!userId,
+  });
+
+  const { data: bookingStats } = useQuery({
+    queryKey: ['booking-points-stats', userId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('bookings')
+        .select('loyalty_points_earned, loyalty_points_redeemed')
+        .eq('user_id', userId!)
+        .eq('archived', false);
+      if (error) throw error;
+      const totalEarned = (data || []).reduce((s, b) => s + (b.loyalty_points_earned || 0), 0);
+      const totalRedeemed = (data || []).reduce((s, b) => s + (b.loyalty_points_redeemed || 0), 0);
+      return { totalEarned, totalRedeemed, bookingCount: data?.length || 0 };
+    },
+    enabled: !!userId,
+  });
+
+  const points = (profileData as any)?.loyalty_points || 0;
+  const dollarValue = (points / 100).toFixed(2);
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <span className="text-sm text-muted-foreground">Available Points</span>
+        <span className="text-2xl font-heading font-bold text-accent">{points}</span>
+      </div>
+      <div className="text-xs text-muted-foreground">≈ ${dollarValue} discount value</div>
+      <div className="grid grid-cols-3 gap-2 pt-2 border-t border-border">
+        <div className="text-center">
+          <p className="text-lg font-bold text-foreground">{bookingStats?.bookingCount || 0}</p>
+          <p className="text-xs text-muted-foreground">Bookings</p>
+        </div>
+        <div className="text-center">
+          <p className="text-lg font-bold text-foreground">{bookingStats?.totalEarned || 0}</p>
+          <p className="text-xs text-muted-foreground">Earned</p>
+        </div>
+        <div className="text-center">
+          <p className="text-lg font-bold text-foreground">{bookingStats?.totalRedeemed || 0}</p>
+          <p className="text-xs text-muted-foreground">Redeemed</p>
+        </div>
+      </div>
+      <p className="text-xs text-muted-foreground">
+        Earn 1 point per $1 spent. Redeem 100 points = $1 off your next booking.
+      </p>
+    </div>
+  );
+}

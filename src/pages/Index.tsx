@@ -156,9 +156,9 @@ export default function Index() {
             {testimonials.map((t, i) => (
               <Card key={i} className="bg-primary-foreground/10 border-primary-foreground/20 backdrop-blur">
                 <CardContent className="pt-6 pb-4">
-                  <div className="flex gap-1 mb-3">{[...Array(5)].map((_, si) => <Star key={si} className="h-4 w-4 fill-accent text-accent" />)}</div>
+                  <div className="flex gap-1 mb-3">{[...Array(5)].map((_, si) => <Star key={si} className={`h-4 w-4 ${si < t.rating ? 'fill-accent text-accent' : 'text-primary-foreground/20'}`} />)}</div>
                   <p className="text-sm text-primary-foreground/90 mb-4 italic">"{t.quote}"</p>
-                  <div><p className="font-heading font-semibold text-sm">{t.name}</p><p className="text-xs text-primary-foreground/60">{t.team}</p></div>
+                  <div><p className="font-heading font-semibold text-sm">{t.name}</p>{t.team && <p className="text-xs text-primary-foreground/60">{t.team}</p>}</div>
                 </CardContent>
               </Card>
             ))}
