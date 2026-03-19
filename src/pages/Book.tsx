@@ -296,7 +296,9 @@ export default function Book() {
 
       // Award loyalty points to user profile
       if (user?.id && pointsEarned > 0) {
-        await supabase.rpc('increment_loyalty_points' as any, { _user_id: user.id, _points: pointsEarned }).catch(() => {});
+        try {
+          await supabase.rpc('increment_loyalty_points' as any, { _user_id: user.id, _points: pointsEarned });
+        } catch {}
       }
 
       // If Square is configured and card tokenization available, process payment
