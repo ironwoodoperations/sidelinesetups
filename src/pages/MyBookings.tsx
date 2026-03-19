@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Calendar, MapPin, Package, LogOut, User, FileText } from 'lucide-react';
+import { Calendar, MapPin, Package, LogOut, User, FileText, Star } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import PublicLayout from '@/components/PublicLayout';
@@ -152,6 +152,13 @@ export default function MyBookings() {
                           <FileText className="h-3.5 w-3.5 mr-1" /> Receipt
                         </Link>
                       </Button>
+                      {['closed', 'picked_up', 'paid'].includes(booking.status || '') && (
+                        <Button asChild variant="ghost" size="sm" className="text-xs">
+                          <Link to={`/leave-review?booking=${booking.id}`}>
+                            <Star className="h-3.5 w-3.5 mr-1" /> Review
+                          </Link>
+                        </Button>
+                      )}
                     </div>
                     <span className="font-heading font-bold text-accent">
                       ${((booking.total_cents || 0) / 100).toFixed(2)}
