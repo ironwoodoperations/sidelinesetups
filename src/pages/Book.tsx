@@ -14,6 +14,7 @@ import SpotPicker from '@/components/SpotPicker';
 import { supabase } from '@/integrations/supabase/client';
 import { useEvents, usePackages, useParks, useFields, useSpots, useAddOns, useLocks } from '@/hooks/useSupabaseData';
 import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '@/hooks/useAuth';
 import fieldDiagram1 from '@/assets/field-diagram-1.jpg';
 import fieldDiagram2 from '@/assets/field-diagram-2.jpg';
 
@@ -67,6 +68,7 @@ interface BookingForm {
 
 export default function Book() {
   const [params] = useSearchParams();
+  const { user, profile } = useAuth();
 
   const [form, setForm] = useState<BookingForm>({
     packageId: params.get('package') || '',
@@ -88,6 +90,20 @@ export default function Book() {
     smsConsent: false,
     discountCode: '',
   });
+
+  // Pre-fill from profile
+  useEffect(() => {
+    if (profile && !form.fullName && !form.email) {
+      setForm(prev => ({
+        ...prev,
+        fullName: prev.fullName || profile.full_name || '',
+        email: prev.email || profile.email || '',
+        phone: prev.phone || profile.phone || '',
+        teamName: prev.teamName || profile.team_name || '',
+        coachName: prev.coachName || profile.coach_name || '',
+      }));
+    }
+  }, [profile]);
 
   const [discountApplied, setDiscountApplied] = useState(false);
   const [discountSavings, setDiscountSavings] = useState(0);
@@ -246,6 +262,7 @@ export default function Book() {
 
       // Create booking first (pending status)
       const { data: bookingData, error: bookingError } = await supabase.from('bookings').insert({
+        user_id: user?.id || null,
         full_name: form.fullName,
         contact_email: form.email,
         phone: form.phone,
