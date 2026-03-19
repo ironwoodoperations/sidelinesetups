@@ -616,6 +616,7 @@ export type Database = {
           full_name: string | null
           id: string
           phone: string | null
+          sms_opt_in: boolean | null
           team_name: string | null
           updated_at: string | null
         }
@@ -626,6 +627,7 @@ export type Database = {
           full_name?: string | null
           id: string
           phone?: string | null
+          sms_opt_in?: boolean | null
           team_name?: string | null
           updated_at?: string | null
         }
@@ -636,6 +638,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           phone?: string | null
+          sms_opt_in?: boolean | null
           team_name?: string | null
           updated_at?: string | null
         }
