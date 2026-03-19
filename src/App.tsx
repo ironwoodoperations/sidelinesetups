@@ -15,6 +15,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import CustomerLogin from "./pages/CustomerLogin";
 import MyBookings from "./pages/MyBookings";
+import Profile from "./pages/Profile";
 import AdminLogin from "./pages/AdminLogin";
 import AdminBookings from "./pages/admin/AdminBookings";
 import AdminEvents from "./pages/admin/AdminEvents";
