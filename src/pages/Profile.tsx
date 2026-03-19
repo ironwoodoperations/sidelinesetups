@@ -119,6 +119,26 @@ export default function Profile() {
                 <Label>Coach Name</Label>
                 <Input value={form.coach_name} onChange={e => setForm(f => ({ ...f, coach_name: e.target.value }))} placeholder="Coach name" />
               </div>
+
+              {/* SMS Opt-in */}
+              <div className="rounded-lg border border-border p-4 space-y-2">
+                <div className="flex items-center gap-2">
+                  <MessageSquare className="h-4 w-4 text-primary" />
+                  <Label className="font-medium">SMS Notifications</Label>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Receive text updates about your bookings (confirmations, reminders, status changes).
+                </p>
+                <div className="flex items-center gap-3 pt-1">
+                  <Switch
+                    checked={form.sms_opt_in}
+                    onCheckedChange={v => setForm(f => ({ ...f, sms_opt_in: v }))}
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    {form.sms_opt_in ? 'Opted in' : 'Opted out'}
+                  </span>
+                </div>
+              </div>
               <Button type="submit" disabled={saving} className="w-full bg-gradient-cta text-primary-foreground shadow-glow-amber font-heading font-semibold">
                 <Save className="h-4 w-4 mr-1" />
                 {saving ? 'Saving…' : 'Save Profile'}
