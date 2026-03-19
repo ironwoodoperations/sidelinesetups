@@ -695,6 +695,47 @@ export type Database = {
         }
         Relationships: []
       }
+      sms_logs: {
+        Row: {
+          booking_id: string | null
+          created_at: string | null
+          id: string
+          message: string
+          phone: string
+          provider_response: Json | null
+          sent_by: string | null
+          status: string
+        }
+        Insert: {
+          booking_id?: string | null
+          created_at?: string | null
+          id?: string
+          message: string
+          phone: string
+          provider_response?: Json | null
+          sent_by?: string | null
+          status?: string
+        }
+        Update: {
+          booking_id?: string | null
+          created_at?: string | null
+          id?: string
+          message?: string
+          phone?: string
+          provider_response?: Json | null
+          sent_by?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sms_logs_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       spots: {
         Row: {
           created_at: string | null
