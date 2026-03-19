@@ -23,6 +23,7 @@ export default function Profile() {
     phone: '',
     team_name: '',
     coach_name: '',
+    sms_opt_in: true,
   });
 
   useEffect(() => {
