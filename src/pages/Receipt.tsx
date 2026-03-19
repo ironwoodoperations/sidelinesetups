@@ -187,8 +187,8 @@ export default function Receipt() {
                 )}
                 {(booking.discount_amount_cents || 0) > 0 && (
                   <tr className="border-b border-border">
-                    <td className="py-2 text-green-600">Discount</td>
-                    <td className="py-2 text-right text-green-600">-{formatCurrency(booking.discount_amount_cents)}</td>
+                    <td className="py-2 text-success">Discount</td>
+                    <td className="py-2 text-right text-success">-{formatCurrency(booking.discount_amount_cents)}</td>
                   </tr>
                 )}
               </tbody>
