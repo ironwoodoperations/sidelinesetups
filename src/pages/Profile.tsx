@@ -5,10 +5,11 @@ import { useAuth } from '@/hooks/useAuth';
 import PublicLayout from '@/components/PublicLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { User, Save, ArrowLeft } from 'lucide-react';
+import { User, Save, ArrowLeft, MessageSquare } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 
@@ -22,6 +23,7 @@ export default function Profile() {
     phone: '',
     team_name: '',
     coach_name: '',
+    sms_opt_in: true,
   });
 
   useEffect(() => {
@@ -37,6 +39,7 @@ export default function Profile() {
         phone: profile.phone || '',
         team_name: profile.team_name || '',
         coach_name: profile.coach_name || '',
+        sms_opt_in: (profile as any).sms_opt_in ?? true,
       });
     }
   }, [profile]);
@@ -51,7 +54,8 @@ export default function Profile() {
         phone: form.phone || null,
         team_name: form.team_name || null,
         coach_name: form.coach_name || null,
-      }).eq('id', user.id);
+        sms_opt_in: form.sms_opt_in,
+      } as any).eq('id', user.id);
       if (error) throw error;
       await refreshProfile();
       toast.success('Profile updated!');
@@ -114,6 +118,26 @@ export default function Profile() {
               <div>
                 <Label>Coach Name</Label>
                 <Input value={form.coach_name} onChange={e => setForm(f => ({ ...f, coach_name: e.target.value }))} placeholder="Coach name" />
+              </div>
+
+              {/* SMS Opt-in */}
+              <div className="rounded-lg border border-border p-4 space-y-2">
+                <div className="flex items-center gap-2">
+                  <MessageSquare className="h-4 w-4 text-primary" />
+                  <Label className="font-medium">SMS Notifications</Label>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Receive text updates about your bookings (confirmations, reminders, status changes).
+                </p>
+                <div className="flex items-center gap-3 pt-1">
+                  <Switch
+                    checked={form.sms_opt_in}
+                    onCheckedChange={v => setForm(f => ({ ...f, sms_opt_in: v }))}
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    {form.sms_opt_in ? 'Opted in' : 'Opted out'}
+                  </span>
+                </div>
               </div>
               <Button type="submit" disabled={saving} className="w-full bg-gradient-cta text-primary-foreground shadow-glow-amber font-heading font-semibold">
                 <Save className="h-4 w-4 mr-1" />
