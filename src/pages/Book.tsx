@@ -94,6 +94,7 @@ export default function Book() {
   const [submitting, setSubmitting] = useState(false);
   const [squareReady, setSquareReady] = useState(false);
   const [squareCard, setSquareCard] = useState<any>(null);
+  const squareCardRef = useRef<HTMLDivElement>(null);
 
   const update = (partial: Partial<BookingForm>) => setForm(prev => ({ ...prev, ...partial }));
 
@@ -105,6 +106,51 @@ export default function Book() {
   const { data: spots } = useSpots(form.fieldId || undefined);
   const { data: allAddOns } = useAddOns();
   const { data: locks } = useLocks(form.date || undefined, form.fieldId || undefined);
+
+  // Square settings
+  const { data: siteSettings } = useQuery({
+    queryKey: ['site-settings-square'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('site_settings').select('*').limit(1).maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const squareAppId = (siteSettings as any)?.square_app_id || '';
+  const squareLocationId = (siteSettings as any)?.square_location_id || '';
+  const squareEnv = (siteSettings as any)?.square_environment || 'sandbox';
+
+  // Load Square Web Payments SDK
+  useEffect(() => {
+    if (!squareAppId || squareReady) return;
+    const scriptId = 'square-web-sdk';
+    if (document.getElementById(scriptId)) return;
+    const script = document.createElement('script');
+    script.id = scriptId;
+    script.src = squareEnv === 'production'
+      ? 'https://web.squarecdn.com/v1/square.js'
+      : 'https://sandbox.web.squarecdn.com/v1/square.js';
+    script.onload = () => setSquareReady(true);
+    document.head.appendChild(script);
+  }, [squareAppId, squareEnv, squareReady]);
+
+  // Initialize Square card when SDK ready and container visible
+  const initSquareCard = useCallback(async () => {
+    if (!squareReady || squareCard || !squareAppId || !squareCardRef.current) return;
+    try {
+      const payments = (window as any).Square.payments(squareAppId, squareLocationId);
+      const card = await payments.card();
+      await card.attach(squareCardRef.current);
+      setSquareCard(card);
+    } catch (err) {
+      console.error('Square card init error:', err);
+    }
+  }, [squareReady, squareCard, squareAppId, squareLocationId]);
+
+  useEffect(() => {
+    initSquareCard();
+  }, [initSquareCard]);
 
   // Derived
   const selectedEvent = (events || []).find(e => e.id === form.eventId);
