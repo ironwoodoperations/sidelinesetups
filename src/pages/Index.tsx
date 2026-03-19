@@ -60,12 +60,11 @@ export default function Index() {
         </div>
         <div className="relative container py-24 md:py-36">
           <div className="max-w-2xl">
-            <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-extrabold text-primary-foreground leading-tight mb-6">
-              Your shade, chairs, and cooler—
-              <span className="text-accent">ready when you arrive.</span>
+            <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-extrabold text-primary-foreground leading-tight mb-4">
+              GameDay Without <span className="text-accent">the Haul.</span>
             </h1>
             <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-lg">
-              Skip the packing, skip the sweat. Just show up, watch, and go home.
+              Your shade, chairs, and cooler — ready when you arrive.
             </p>
             <div className="flex flex-wrap gap-4">
               <Button asChild size="lg" className="bg-gradient-cta text-primary-foreground shadow-glow-amber font-heading font-semibold text-base">
