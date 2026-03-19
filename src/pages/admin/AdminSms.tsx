@@ -94,6 +94,16 @@ export default function AdminSms() {
     },
   });
 
+  // Fetch events for bulk SMS
+  const { data: events } = useQuery({
+    queryKey: ['admin-events-sms'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('events').select('id, name').eq('archived', false).eq('is_active', true).order('start_date', { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const sendMut = useMutation({
     mutationFn: async () => {
       const admin = JSON.parse(sessionStorage.getItem('ss.admin') || '{}');
