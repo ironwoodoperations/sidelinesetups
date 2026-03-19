@@ -45,7 +45,7 @@ export function Navbar() {
           </Button>
           {user ? (
             <div className="flex items-center gap-2">
-              <Link to="/my-bookings" className="text-sm text-muted-foreground hover:text-accent">
+              <Link to="/profile" className="text-sm text-muted-foreground hover:text-accent">
                 <User className="h-4 w-4 inline mr-1" />{profile?.full_name || 'Account'}
               </Link>
             </div>
