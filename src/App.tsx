@@ -12,6 +12,8 @@ import OurStory from "./pages/OurStory";
 import ThankYou from "./pages/ThankYou";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsAndConditions from "./pages/TermsAndConditions";
+import CustomerLogin from "./pages/CustomerLogin";
+import MyBookings from "./pages/MyBookings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +34,8 @@ const App = () => (
           <Route path="/thank-you" element={<ThankYou />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+          <Route path="/customer-login" element={<CustomerLogin />} />
+          <Route path="/my-bookings" element={<MyBookings />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
