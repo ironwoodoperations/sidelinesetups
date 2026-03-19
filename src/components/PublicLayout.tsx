@@ -121,7 +121,7 @@ export function Footer() {
               <Link to="/terms-and-conditions" className="hover:text-accent transition-colors">Terms & Conditions</Link>
             </nav>
             <p className="text-xs text-primary-foreground/50 mt-6">
-              © {new Date().getFullYear()} Sideline Setups. All rights reserved.
+              <Link to="/admin-login" className="hover:text-accent transition-colors">©</Link> {new Date().getFullYear()} Sideline Setups. All rights reserved.
             </p>
           </div>
         </div>
