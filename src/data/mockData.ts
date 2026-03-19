@@ -1,4 +1,6 @@
 import { Event, Package, Park, Field, Spot, Equipment, AddOn, FaqItem } from '@/types';
+import fieldDiagram1 from '@/assets/field-diagram-1.jpg';
+import fieldDiagram2 from '@/assets/field-diagram-2.jpg';
 
 export const mockEvents: Event[] = [
   {
@@ -159,27 +161,32 @@ export const mockParks: Park[] = [
 ];
 
 export const mockFields: Field[] = [
-  { id: 'field-1', parkId: 'park-1', name: 'Field 1', imageUrl: '', maxLeagueSpots: 4 },
-  { id: 'field-2', parkId: 'park-1', name: 'Field 2', imageUrl: '', maxLeagueSpots: 4 },
+  { id: 'field-1', parkId: 'park-1', name: 'Field 1', imageUrl: fieldDiagram1, maxLeagueSpots: 4 },
+  { id: 'field-2', parkId: 'park-1', name: 'Field 2', imageUrl: fieldDiagram2, maxLeagueSpots: 4 },
   { id: 'field-3', parkId: 'park-1', name: 'Field 3', imageUrl: '', maxLeagueSpots: 4 },
-  { id: 'field-4', parkId: 'park-2', name: 'Field A', imageUrl: '', maxLeagueSpots: 2 },
+  { id: 'field-4', parkId: 'park-2', name: 'Field A', imageUrl: fieldDiagram1, maxLeagueSpots: 2 },
 ];
 
+// Spots positioned to match field diagram 1 (tent areas along foul lines)
 export const mockSpots: Spot[] = [
-  { id: 'spot-1', fieldId: 'field-1', label: 'A1', x: 20, y: 25 },
-  { id: 'spot-2', fieldId: 'field-1', label: 'A2', x: 50, y: 25 },
-  { id: 'spot-3', fieldId: 'field-1', label: 'A3', x: 80, y: 25 },
-  { id: 'spot-4', fieldId: 'field-1', label: 'B1', x: 20, y: 75 },
-  { id: 'spot-5', fieldId: 'field-1', label: 'B2', x: 50, y: 75 },
-  { id: 'spot-6', fieldId: 'field-1', label: 'B3', x: 80, y: 75 },
-  { id: 'spot-7', fieldId: 'field-2', label: 'A1', x: 25, y: 30 },
-  { id: 'spot-8', fieldId: 'field-2', label: 'A2', x: 75, y: 30 },
-  { id: 'spot-9', fieldId: 'field-2', label: 'B1', x: 25, y: 70 },
-  { id: 'spot-10', fieldId: 'field-2', label: 'B2', x: 75, y: 70 },
+  // Field 1 — diagram 1 style: spots along the foul lines
+  { id: 'spot-1', fieldId: 'field-1', label: 'A1', x: 8, y: 55 },
+  { id: 'spot-2', fieldId: 'field-1', label: 'A2', x: 10, y: 67 },
+  { id: 'spot-3', fieldId: 'field-1', label: 'A3', x: 14, y: 78 },
+  { id: 'spot-4', fieldId: 'field-1', label: 'B1', x: 92, y: 55 },
+  { id: 'spot-5', fieldId: 'field-1', label: 'B2', x: 90, y: 67 },
+  { id: 'spot-6', fieldId: 'field-1', label: 'B3', x: 86, y: 78 },
+  // Field 2 — diagram 2 style: spots near bleacher areas
+  { id: 'spot-7', fieldId: 'field-2', label: 'A1', x: 15, y: 72 },
+  { id: 'spot-8', fieldId: 'field-2', label: 'A2', x: 15, y: 82 },
+  { id: 'spot-9', fieldId: 'field-2', label: 'B1', x: 85, y: 72 },
+  { id: 'spot-10', fieldId: 'field-2', label: 'B2', x: 85, y: 82 },
+  // Field 3 — no image, grid fallback
   { id: 'spot-11', fieldId: 'field-3', label: '1', x: 30, y: 50 },
   { id: 'spot-12', fieldId: 'field-3', label: '2', x: 70, y: 50 },
-  { id: 'spot-13', fieldId: 'field-4', label: 'L1', x: 35, y: 40 },
-  { id: 'spot-14', fieldId: 'field-4', label: 'L2', x: 65, y: 60 },
+  // Field A — diagram 1 style
+  { id: 'spot-13', fieldId: 'field-4', label: 'L1', x: 10, y: 67 },
+  { id: 'spot-14', fieldId: 'field-4', label: 'L2', x: 90, y: 67 },
 ];
 
 export const mockEquipment: Equipment[] = [
