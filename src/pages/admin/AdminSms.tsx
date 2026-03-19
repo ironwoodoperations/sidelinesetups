@@ -310,6 +310,68 @@ export default function AdminSms() {
             </div>
           </TabsContent>
 
+          {/* BULK SMS TAB */}
+          <TabsContent value="bulk">
+            <Card>
+              <CardHeader><CardTitle className="text-lg">Bulk SMS to Event</CardTitle></CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground">Send a message to all customers booked for a specific event who have SMS consent.</p>
+                <div className="space-y-2">
+                  <Label>Select Event</Label>
+                  <Select value={bulkEvent} onValueChange={setBulkEvent}>
+                    <SelectTrigger><SelectValue placeholder="Choose an event..." /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Select an event</SelectItem>
+                      {events?.map(ev => (
+                        <SelectItem key={ev.id} value={ev.id}>{ev.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Message</Label>
+                  <Textarea placeholder="Type your bulk message..." value={bulkMessage} onChange={e => setBulkMessage(e.target.value)} rows={4} />
+                </div>
+                <Button
+                  disabled={bulkEvent === 'none' || !bulkMessage || bulkSending}
+                  className="w-full bg-gradient-cta text-primary-foreground font-heading"
+                  onClick={async () => {
+                    setBulkSending(true);
+                    try {
+                      const { data: eventBookings, error } = await supabase
+                        .from('bookings')
+                        .select('id, phone, full_name, sms_consent_given')
+                        .eq('event_id', bulkEvent)
+                        .eq('archived', false)
+                        .not('phone', 'is', null);
+                      if (error) throw error;
+                      const eligible = eventBookings?.filter(b => b.sms_consent_given && b.phone) || [];
+                      if (eligible.length === 0) { toast.error('No eligible customers with SMS consent found'); setBulkSending(false); return; }
+                      const admin = JSON.parse(sessionStorage.getItem('ss.admin') || '{}');
+                      let sent = 0;
+                      for (const b of eligible) {
+                        const { error: sendErr } = await supabase.functions.invoke('send-sms', {
+                          body: { phone: b.phone, message: bulkMessage, booking_id: b.id, sent_by: admin.name || 'admin' },
+                        });
+                        if (!sendErr) sent++;
+                      }
+                      toast.success(`Sent to ${sent}/${eligible.length} customers`);
+                      setBulkMessage('');
+                      qc.invalidateQueries({ queryKey: ['sms-logs'] });
+                    } catch (err: any) {
+                      toast.error(err.message || 'Bulk send failed');
+                    } finally {
+                      setBulkSending(false);
+                    }
+                  }}
+                >
+                  <Users className="h-4 w-4 mr-2" />
+                  {bulkSending ? 'Sending...' : 'Send to All'}
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* AUTOMATION TAB */}
           <TabsContent value="automation">
             <Card>
