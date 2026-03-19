@@ -56,6 +56,8 @@ const App = () => (
           <Route path="/admin/discounts" element={<AdminDiscounts />} />
           <Route path="/admin/faq" element={<AdminFaq />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="/staff-login" element={<StaffLogin />} />
+          <Route path="/staff" element={<StaffDashboard />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
