@@ -51,6 +51,9 @@ export default function AdminSettings() {
         service_fee_cents: Number(form.service_fee_cents) || 0,
         paypal_mode: form.paypal_mode,
         paypal_client_id: form.paypal_client_id || null,
+        square_app_id: form.square_app_id || null,
+        square_location_id: form.square_location_id || null,
+        square_environment: form.square_environment || 'sandbox',
       };
       if (settings?.id) {
         const { error } = await supabase.from('site_settings').update(payload).eq('id', settings.id);
