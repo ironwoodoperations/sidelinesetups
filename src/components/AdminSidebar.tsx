@@ -39,6 +39,7 @@ const mainItems = [
 const configItems = [
   { title: 'Equipment', url: '/admin/equipment', icon: Wrench },
   { title: 'Discount Codes', url: '/admin/discounts', icon: Tag },
+  { title: 'Reviews', url: '/admin/reviews', icon: Star },
   { title: 'FAQ', url: '/admin/faq', icon: HelpCircle },
   { title: 'SMS', url: '/admin/sms', icon: MessageSquare },
   { title: 'Site Settings', url: '/admin/settings', icon: Settings },

@@ -139,7 +139,13 @@ export default function CustomerLogin() {
           </Button>
         </form>
 
-        <p className="text-sm text-muted-foreground text-center mt-6">
+        {mode === 'login' && (
+          <p className="text-sm text-center mt-3">
+            <Link to="/forgot-password" className="text-accent font-semibold hover:underline">Forgot password?</Link>
+          </p>
+        )}
+
+        <p className="text-sm text-muted-foreground text-center mt-4">
           {mode === 'login' ? (
             <>Don't have an account?{' '}
               <button onClick={() => setMode('signup')} className="text-accent font-semibold hover:underline">Sign up</button>
