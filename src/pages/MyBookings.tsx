@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Calendar, MapPin, Package, LogOut, User } from 'lucide-react';
+import { Calendar, MapPin, Package, LogOut, User, FileText } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import PublicLayout from '@/components/PublicLayout';
