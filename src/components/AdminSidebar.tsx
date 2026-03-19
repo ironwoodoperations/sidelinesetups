@@ -9,6 +9,7 @@ import {
   ClipboardList,
   LogOut,
   MessageSquare,
+  BarChart3,
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { NavLink } from '@/components/NavLink';
@@ -28,6 +29,7 @@ import {
 
 const mainItems = [
   { title: 'Bookings', url: '/admin', icon: ClipboardList },
+  { title: 'Analytics', url: '/admin/analytics', icon: BarChart3 },
   { title: 'Events', url: '/admin/events', icon: Calendar },
   { title: 'Packages', url: '/admin/packages', icon: Package },
   { title: 'Parks & Fields', url: '/admin/parks', icon: MapPin },

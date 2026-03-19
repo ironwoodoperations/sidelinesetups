@@ -27,6 +27,7 @@ import AdminDiscounts from "./pages/admin/AdminDiscounts";
 import AdminFaq from "./pages/admin/AdminFaq";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminSms from "./pages/admin/AdminSms";
+import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import StaffLogin from "./pages/StaffLogin";
 import StaffDashboard from "./pages/StaffDashboard";
 import NotFound from "./pages/NotFound";
@@ -64,6 +65,7 @@ const App = () => (
             <Route path="/admin/faq" element={<AdminFaq />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
             <Route path="/admin/sms" element={<AdminSms />} />
+            <Route path="/admin/analytics" element={<AdminAnalytics />} />
             <Route path="/staff-login" element={<StaffLogin />} />
             <Route path="/staff" element={<StaffDashboard />} />
             <Route path="*" element={<NotFound />} />
