@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -13,6 +13,7 @@ import PublicLayout from '@/components/PublicLayout';
 import SpotPicker from '@/components/SpotPicker';
 import { supabase } from '@/integrations/supabase/client';
 import { useEvents, usePackages, useParks, useFields, useSpots, useAddOns, useLocks } from '@/hooks/useSupabaseData';
+import { useQuery } from '@tanstack/react-query';
 import fieldDiagram1 from '@/assets/field-diagram-1.jpg';
 import fieldDiagram2 from '@/assets/field-diagram-2.jpg';
 
@@ -91,6 +92,9 @@ export default function Book() {
   const [discountApplied, setDiscountApplied] = useState(false);
   const [discountSavings, setDiscountSavings] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [squareReady, setSquareReady] = useState(false);
+  const [squareCard, setSquareCard] = useState<any>(null);
+  const squareCardRef = useRef<HTMLDivElement>(null);
 
   const update = (partial: Partial<BookingForm>) => setForm(prev => ({ ...prev, ...partial }));
 
@@ -102,6 +106,51 @@ export default function Book() {
   const { data: spots } = useSpots(form.fieldId || undefined);
   const { data: allAddOns } = useAddOns();
   const { data: locks } = useLocks(form.date || undefined, form.fieldId || undefined);
+
+  // Square settings
+  const { data: siteSettings } = useQuery({
+    queryKey: ['site-settings-square'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('site_settings').select('*').limit(1).maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const squareAppId = (siteSettings as any)?.square_app_id || '';
+  const squareLocationId = (siteSettings as any)?.square_location_id || '';
+  const squareEnv = (siteSettings as any)?.square_environment || 'sandbox';
+
+  // Load Square Web Payments SDK
+  useEffect(() => {
+    if (!squareAppId || squareReady) return;
+    const scriptId = 'square-web-sdk';
+    if (document.getElementById(scriptId)) return;
+    const script = document.createElement('script');
+    script.id = scriptId;
+    script.src = squareEnv === 'production'
+      ? 'https://web.squarecdn.com/v1/square.js'
+      : 'https://sandbox.web.squarecdn.com/v1/square.js';
+    script.onload = () => setSquareReady(true);
+    document.head.appendChild(script);
+  }, [squareAppId, squareEnv, squareReady]);
+
+  // Initialize Square card when SDK ready and container visible
+  const initSquareCard = useCallback(async () => {
+    if (!squareReady || squareCard || !squareAppId || !squareCardRef.current) return;
+    try {
+      const payments = (window as any).Square.payments(squareAppId, squareLocationId);
+      const card = await payments.card();
+      await card.attach(squareCardRef.current);
+      setSquareCard(card);
+    } catch (err) {
+      console.error('Square card init error:', err);
+    }
+  }, [squareReady, squareCard, squareAppId, squareLocationId]);
+
+  useEffect(() => {
+    initSquareCard();
+  }, [initSquareCard]);
 
   // Derived
   const selectedEvent = (events || []).find(e => e.id === form.eventId);
@@ -194,7 +243,9 @@ export default function Book() {
     setSubmitting(true);
     try {
       const selectedEvt = (events || []).find(e => e.id === form.eventId);
-      const { error } = await supabase.from('bookings').insert({
+
+      // Create booking first (pending status)
+      const { data: bookingData, error: bookingError } = await supabase.from('bookings').insert({
         full_name: form.fullName,
         contact_email: form.email,
         phone: form.phone,
@@ -219,10 +270,36 @@ export default function Book() {
         sms_consent_given: form.smsConsent,
         notes: form.notes || null,
         status: 'pending',
-      });
-      if (error) throw error;
-      toast.success('Booking created successfully!');
-      window.location.href = '/thank-you?b=demo';
+      }).select('id').single();
+      if (bookingError) throw bookingError;
+
+      // If Square is configured and card tokenization available, process payment
+      if (squareCard && squareAppId && squareLocationId && totalCents > 0) {
+        const tokenResult = await squareCard.tokenize();
+        if (tokenResult.status !== 'OK') {
+          throw new Error(tokenResult.errors?.[0]?.message || 'Card tokenization failed');
+        }
+
+        const { data: payResult, error: payError } = await supabase.functions.invoke('create-square-payment', {
+          body: {
+            sourceId: tokenResult.token,
+            amountCents: totalCents,
+            currency: 'USD',
+            bookingId: bookingData.id,
+            locationId: squareLocationId,
+            environment: squareEnv,
+          },
+        });
+
+        if (payError) throw new Error(payError.message || 'Payment processing failed');
+        if (payResult?.error) throw new Error(payResult.error);
+
+        toast.success('Payment successful! Booking confirmed.');
+      } else {
+        toast.success('Booking created successfully!');
+      }
+
+      window.location.href = `/thank-you?b=${bookingData.id}`;
     } catch (err: any) {
       toast.error(err.message || 'Failed to create booking');
     } finally {
@@ -489,13 +566,27 @@ export default function Book() {
           <section className="mb-16 animate-fade-in-up">
             <h2 className="font-heading text-xl font-bold text-foreground mb-4">10. Payment</h2>
             <Card className="border-2 border-border bg-secondary">
-              <CardContent className="p-6 text-center">
-                <ShoppingCart className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-                <p className="text-muted-foreground mb-4">PayPal integration coming soon. For now, submit your booking as a demo.</p>
-                <Button onClick={handleSubmitBooking} disabled={submitting}
-                  className="bg-gradient-cta text-primary-foreground shadow-glow-amber font-heading font-semibold">
-                  {submitting ? 'Submitting…' : 'Complete Booking (Demo)'}
-                </Button>
+              <CardContent className="p-6">
+                {squareAppId ? (
+                  <>
+                    <p className="text-sm text-muted-foreground mb-4">Enter your card details below to complete payment.</p>
+                    <div ref={squareCardRef} className="mb-4 min-h-[50px]" />
+                    {!squareReady && <p className="text-xs text-muted-foreground">Loading payment form…</p>}
+                    <Button onClick={handleSubmitBooking} disabled={submitting || !squareCard}
+                      className="w-full bg-gradient-cta text-primary-foreground shadow-glow-amber font-heading font-semibold">
+                      {submitting ? 'Processing…' : `Pay ${formatCurrency(totalCents)}`}
+                    </Button>
+                  </>
+                ) : (
+                  <div className="text-center">
+                    <ShoppingCart className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+                    <p className="text-muted-foreground mb-4">Payment is not yet configured. Submit your booking and pay later.</p>
+                    <Button onClick={handleSubmitBooking} disabled={submitting}
+                      className="bg-gradient-cta text-primary-foreground shadow-glow-amber font-heading font-semibold">
+                      {submitting ? 'Submitting…' : 'Complete Booking'}
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </section>

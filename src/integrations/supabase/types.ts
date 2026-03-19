@@ -97,6 +97,7 @@ export type Database = {
           sms_consent_given: boolean | null
           sport: string | null
           spot_id: string | null
+          square_payment_id: string | null
           status: string | null
           team_name: string | null
           total_cents: number | null
@@ -138,6 +139,7 @@ export type Database = {
           sms_consent_given?: boolean | null
           sport?: string | null
           spot_id?: string | null
+          square_payment_id?: string | null
           status?: string | null
           team_name?: string | null
           total_cents?: number | null
@@ -179,6 +181,7 @@ export type Database = {
           sms_consent_given?: boolean | null
           sport?: string | null
           spot_id?: string | null
+          square_payment_id?: string | null
           status?: string | null
           team_name?: string | null
           total_cents?: number | null
@@ -614,6 +617,9 @@ export type Database = {
           paypal_client_id: string | null
           paypal_mode: string | null
           service_fee_cents: number | null
+          square_app_id: string | null
+          square_environment: string | null
+          square_location_id: string | null
           support_email: string | null
           tax_rate_percent: number | null
         }
@@ -628,6 +634,9 @@ export type Database = {
           paypal_client_id?: string | null
           paypal_mode?: string | null
           service_fee_cents?: number | null
+          square_app_id?: string | null
+          square_environment?: string | null
+          square_location_id?: string | null
           support_email?: string | null
           tax_rate_percent?: number | null
         }
@@ -642,6 +651,9 @@ export type Database = {
           paypal_client_id?: string | null
           paypal_mode?: string | null
           service_fee_cents?: number | null
+          square_app_id?: string | null
+          square_environment?: string | null
+          square_location_id?: string | null
           support_email?: string | null
           tax_rate_percent?: number | null
         }

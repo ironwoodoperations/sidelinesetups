@@ -34,6 +34,9 @@ export default function AdminSettings() {
         service_fee_cents: (settings.service_fee_cents ?? 0).toString(),
         paypal_mode: settings.paypal_mode || 'sandbox',
         paypal_client_id: settings.paypal_client_id || '',
+        square_app_id: (settings as any).square_app_id || '',
+        square_location_id: (settings as any).square_location_id || '',
+        square_environment: (settings as any).square_environment || 'sandbox',
       });
     }
   }, [settings]);
@@ -48,6 +51,9 @@ export default function AdminSettings() {
         service_fee_cents: Number(form.service_fee_cents) || 0,
         paypal_mode: form.paypal_mode,
         paypal_client_id: form.paypal_client_id || null,
+        square_app_id: form.square_app_id || null,
+        square_location_id: form.square_location_id || null,
+        square_environment: form.square_environment || 'sandbox',
       };
       if (settings?.id) {
         const { error } = await supabase.from('site_settings').update(payload).eq('id', settings.id);
@@ -116,6 +122,23 @@ export default function AdminSettings() {
                 <div className="space-y-2">
                   <Label>Client ID</Label>
                   <Input value={form.paypal_client_id || ''} disabled={!editing} onChange={e => setForm(f => ({ ...f, paypal_client_id: e.target.value }))} />
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader><CardTitle className="text-lg">Square Payments</CardTitle></CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Application ID</Label>
+                  <Input value={form.square_app_id || ''} disabled={!editing} onChange={e => setForm(f => ({ ...f, square_app_id: e.target.value }))} placeholder="sq0idp-..." />
+                </div>
+                <div className="space-y-2">
+                  <Label>Location ID</Label>
+                  <Input value={form.square_location_id || ''} disabled={!editing} onChange={e => setForm(f => ({ ...f, square_location_id: e.target.value }))} placeholder="L..." />
+                </div>
+                <div className="space-y-2">
+                  <Label>Environment</Label>
+                  <Input value={form.square_environment || ''} disabled={!editing} onChange={e => setForm(f => ({ ...f, square_environment: e.target.value }))} placeholder="sandbox or production" />
                 </div>
               </CardContent>
             </Card>
