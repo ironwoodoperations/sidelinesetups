@@ -91,6 +91,18 @@ export default function Profile() {
           </div>
         </div>
 
+        {/* Loyalty Points Card */}
+        <Card className="border-2 border-border mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Trophy className="h-5 w-5 text-accent" /> Loyalty Points
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <LoyaltyPointsDisplay userId={user?.id} />
+          </CardContent>
+        </Card>
+
         <Card className="border-2 border-border">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
