@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import AdminLayout from '@/components/AdminLayout';
@@ -9,10 +9,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Search, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 const statusColors: Record<string, string> = {
@@ -27,12 +26,18 @@ const statusColors: Record<string, string> = {
   cancelled: 'bg-destructive/20 text-destructive',
 };
 
-const statuses = ['pending', 'paid', 'photo_uploaded', 'setup', 'checked_in', 'leaving', 'picked_up', 'closed', 'cancelled'];
+const statuses = ['all', 'pending', 'paid', 'photo_uploaded', 'setup', 'checked_in', 'leaving', 'picked_up', 'closed', 'cancelled'];
 
 export default function AdminBookings() {
   const qc = useQueryClient();
   const [editId, setEditId] = useState<string | null>(null);
   const [editStatus, setEditStatus] = useState('');
+
+  // Filters
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
 
   const { data: bookings, isLoading } = useQuery({
     queryKey: ['admin-bookings'],
@@ -42,11 +47,34 @@ export default function AdminBookings() {
         .select('*, events(name), packages(name), parks(name), fields(name), spots(label)')
         .eq('archived', false)
         .order('created_at', { ascending: false })
-        .limit(100);
+        .limit(500);
       if (error) throw error;
       return data;
     },
   });
+
+  const filtered = useMemo(() => {
+    if (!bookings) return [];
+    return bookings.filter(b => {
+      // Status filter
+      if (statusFilter !== 'all' && b.status !== statusFilter) return false;
+      // Date range
+      if (dateFrom && b.date && b.date < dateFrom) return false;
+      if (dateTo && b.date && b.date > dateTo) return false;
+      // Search
+      if (search) {
+        const q = search.toLowerCase();
+        const match =
+          (b.full_name || '').toLowerCase().includes(q) ||
+          (b.team_name || '').toLowerCase().includes(q) ||
+          (b.phone || '').includes(q) ||
+          (b.contact_email || '').toLowerCase().includes(q) ||
+          ((b.events as any)?.name || '').toLowerCase().includes(q);
+        if (!match) return false;
+      }
+      return true;
+    });
+  }, [bookings, search, statusFilter, dateFrom, dateTo]);
 
   const updateMut = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
@@ -58,11 +86,65 @@ export default function AdminBookings() {
   });
 
   const booking = bookings?.find(b => b.id === editId);
+  const hasFilters = search || statusFilter !== 'all' || dateFrom || dateTo;
+
+  const clearFilters = () => {
+    setSearch('');
+    setStatusFilter('all');
+    setDateFrom('');
+    setDateTo('');
+  };
 
   return (
     <AdminLayout>
       <div className="space-y-4">
-        <h1 className="font-heading text-2xl font-bold text-foreground">Bookings</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="font-heading text-2xl font-bold text-foreground">Bookings</h1>
+          <span className="text-sm text-muted-foreground">{filtered.length} result{filtered.length !== 1 ? 's' : ''}</span>
+        </div>
+
+        {/* Filters */}
+        <div className="flex flex-wrap gap-3 items-end">
+          <div className="flex-1 min-w-[200px] space-y-1">
+            <Label className="text-xs text-muted-foreground">Search</Label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Name, team, phone, email, event..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+          </div>
+          <div className="w-[150px] space-y-1">
+            <Label className="text-xs text-muted-foreground">Status</Label>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {statuses.map(s => (
+                  <SelectItem key={s} value={s} className="capitalize">
+                    {s === 'all' ? 'All statuses' : s.replace('_', ' ')}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="w-[140px] space-y-1">
+            <Label className="text-xs text-muted-foreground">From</Label>
+            <Input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} />
+          </div>
+          <div className="w-[140px] space-y-1">
+            <Label className="text-xs text-muted-foreground">To</Label>
+            <Input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} />
+          </div>
+          {hasFilters && (
+            <Button variant="ghost" size="sm" onClick={clearFilters} className="text-muted-foreground">
+              <X className="h-4 w-4 mr-1" /> Clear
+            </Button>
+          )}
+        </div>
+
         {isLoading ? (
           <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}</div>
         ) : (
@@ -81,7 +163,7 @@ export default function AdminBookings() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {bookings?.map(b => (
+                {filtered.map(b => (
                   <TableRow key={b.id}>
                     <TableCell className="whitespace-nowrap">{b.date ? format(new Date(b.date), 'MMM d, yyyy') : '—'}</TableCell>
                     <TableCell>
@@ -102,8 +184,8 @@ export default function AdminBookings() {
                     </TableCell>
                   </TableRow>
                 ))}
-                {bookings?.length === 0 && (
-                  <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-8">No bookings yet</TableCell></TableRow>
+                {filtered.length === 0 && (
+                  <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-8">{hasFilters ? 'No matching bookings' : 'No bookings yet'}</TableCell></TableRow>
                 )}
               </TableBody>
             </Table>
@@ -127,7 +209,7 @@ export default function AdminBookings() {
                 <Select value={editStatus} onValueChange={setEditStatus}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {statuses.map(s => <SelectItem key={s} value={s} className="capitalize">{s.replace('_', ' ')}</SelectItem>)}
+                    {statuses.filter(s => s !== 'all').map(s => <SelectItem key={s} value={s} className="capitalize">{s.replace('_', ' ')}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
