@@ -7,7 +7,7 @@ import { usePackages } from '@/hooks/useSupabaseData';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import PublicLayout from '@/components/PublicLayout';
-import heroImage from '@/assets/hero-softball.jpg';
+import heroImage from '@/assets/hero-sideline.jpg';
 
 const howItWorks = [
   { icon: Tent, title: 'We Set Up & Tear Down', desc: 'Our crew arrives early, sets everything up at your chosen spot, and packs it all away when you leave.' },
