@@ -12,6 +12,15 @@ dist
 dist-ssr
 *.local
 
+# Environment files — never commit real secrets. Use .env.example for names only.
+.env
+.env.*
+!.env.example
+
+# Package managers — this repo standardizes on npm (package-lock.json).
+bun.lock
+bun.lockb
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

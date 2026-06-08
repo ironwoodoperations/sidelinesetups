@@ -1,0 +1,55 @@
+# IRONWOOD FRAMEWORK v3.1 — CI Workflow
+# Runs on every PR targeting main. Required to pass before auto-merge fires.
+# Adapted for this project's stack: React + Vite + Vitest, Node 24.
+
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  # Also run on direct pushes to main (rare, but catches escape-hatch pushes)
+  push:
+    branches: [main]
+
+# Cancel in-progress runs when a new commit is pushed to the same PR
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript check
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+        env:
+          # Vite build does not require secrets to compile; the Supabase client reads
+          # import.meta.env.VITE_* at runtime. Wire these via repo secrets if a build-time
+          # value is ever needed — never inline them here.
+          # VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          # VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          NODE_ENV: production
