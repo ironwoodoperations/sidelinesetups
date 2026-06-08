@@ -45,16 +45,19 @@ const configItems = [
   { title: 'Site Settings', url: '/admin/settings', icon: Settings },
 ];
 
-export function AdminSidebar() {
+interface AdminSidebarProps {
+  employeeName?: string;
+  onSignOut: () => void;
+}
+
+export function AdminSidebar({ employeeName, onSignOut }: AdminSidebarProps) {
   const { state } = useSidebar();
   const collapsed = state === 'collapsed';
   const navigate = useNavigate();
   const location = useLocation();
 
-  const admin = JSON.parse(sessionStorage.getItem('ss.admin') || '{}');
-
   const handleLogout = () => {
-    sessionStorage.removeItem('ss.admin');
+    onSignOut();
     navigate('/admin-login');
   };
 
@@ -112,8 +115,8 @@ export function AdminSidebar() {
 
       <SidebarFooter>
         <div className="p-4 space-y-2">
-          {!collapsed && admin.name && (
-            <p className="text-xs text-sidebar-foreground/70 truncate">{admin.name}</p>
+          {!collapsed && employeeName && (
+            <p className="text-xs text-sidebar-foreground/70 truncate">{employeeName}</p>
           )}
           <button
             onClick={handleLogout}

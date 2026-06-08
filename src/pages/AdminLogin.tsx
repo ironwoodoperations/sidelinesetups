@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { setAdminEmployeeId, ADMIN_ROLES } from '@/hooks/useAdminAuth';
 import { Button } from '@/components/ui/button';
 import { Delete } from 'lucide-react';
 import logoIcon from '@/assets/logo-icon.png';
@@ -21,10 +22,10 @@ export default function AdminLogin() {
     setLoading(true);
     const { data, error: err } = await supabase
       .from('employees')
-      .select('*')
+      .select('id')
       .eq('pin', pin)
       .eq('is_active', true)
-      .in('role', ['admin', 'owner'])
+      .in('role', ADMIN_ROLES as unknown as string[])
       .maybeSingle();
     setLoading(false);
     if (err || !data) {
@@ -32,7 +33,11 @@ export default function AdminLogin() {
       setPin('');
       return;
     }
-    sessionStorage.setItem('ss.admin', JSON.stringify({ id: data.id, name: data.full_name, role: data.role }));
+    // Establish the admin session: store ONLY the verified employee id.
+    // AdminLayout re-reads the role/active state from the DB on mount, so the
+    // role is never trusted from a client-held blob. See useAdminAuth.tsx for
+    // the UI-gate-vs-RLS security boundary (RLS enforcement lands in PR 3).
+    setAdminEmployeeId(data.id);
     navigate('/admin');
   };
 

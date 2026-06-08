@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import AdminLayout from '@/components/AdminLayout';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +23,7 @@ const BOOKING_STATUSES = ['pending', 'paid', 'photo_uploaded', 'setup', 'checked
 
 export default function AdminSms() {
   const qc = useQueryClient();
+  const { employee } = useAdminAuth();
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
   const [selectedBooking, setSelectedBooking] = useState<string>('none');
@@ -106,13 +108,12 @@ export default function AdminSms() {
 
   const sendMut = useMutation({
     mutationFn: async () => {
-      const admin = JSON.parse(sessionStorage.getItem('ss.admin') || '{}');
       const { data, error } = await supabase.functions.invoke('send-sms', {
         body: {
           phone,
           message,
           booking_id: selectedBooking !== 'none' ? selectedBooking : undefined,
-          sent_by: admin.name || 'admin',
+          sent_by: employee?.full_name || 'admin',
         },
       });
       if (error) throw error;
@@ -347,11 +348,10 @@ export default function AdminSms() {
                       if (error) throw error;
                       const eligible = eventBookings?.filter(b => b.sms_consent_given && b.phone) || [];
                       if (eligible.length === 0) { toast.error('No eligible customers with SMS consent found'); setBulkSending(false); return; }
-                      const admin = JSON.parse(sessionStorage.getItem('ss.admin') || '{}');
                       let sent = 0;
                       for (const b of eligible) {
                         const { error: sendErr } = await supabase.functions.invoke('send-sms', {
-                          body: { phone: b.phone, message: bulkMessage, booking_id: b.id, sent_by: admin.name || 'admin' },
+                          body: { phone: b.phone, message: bulkMessage, booking_id: b.id, sent_by: employee?.full_name || 'admin' },
                         });
                         if (!sendErr) sent++;
                       }
