@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { setStaffEmployeeId } from '@/hooks/useStaffAuth';
 import { Button } from '@/components/ui/button';
 import { Delete } from 'lucide-react';
 import logoIcon from '@/assets/logo-icon.png';
@@ -21,7 +22,7 @@ export default function StaffLogin() {
     setLoading(true);
     const { data, error: err } = await supabase
       .from('employees')
-      .select('*')
+      .select('id')
       .eq('pin', pin)
       .eq('is_active', true)
       .maybeSingle();
@@ -31,7 +32,11 @@ export default function StaffLogin() {
       setPin('');
       return;
     }
-    sessionStorage.setItem('ss.staff', JSON.stringify({ id: data.id, name: data.full_name, role: data.role }));
+    // Establish the staff session: store ONLY the verified employee id. StaffGate
+    // re-reads the role/active state from the DB on mount, so the role is never
+    // trusted from a client-held blob. See useEmployeeAuth.tsx for the
+    // UI-gate-vs-RLS security boundary (RLS audit: docs/RLS_AUDIT.md).
+    setStaffEmployeeId(data.id);
     navigate('/staff');
   };
 
