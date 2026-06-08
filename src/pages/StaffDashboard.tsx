@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import StaffGate, { useStaffEmployee } from '@/components/StaffGate';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -26,19 +26,23 @@ const statusColors: Record<string, string> = {
   cancelled: 'bg-destructive/20 text-destructive',
 };
 
+// Default export is the gated route. The DB-verified employee gate lives in
+// StaffGate (mirrors AdminLayout); the dashboard body reads the verified
+// employee from context and never trusts a client-held session blob.
 export default function StaffDashboard() {
-  const navigate = useNavigate();
+  return (
+    <StaffGate>
+      <StaffDashboardContent />
+    </StaffGate>
+  );
+}
+
+function StaffDashboardContent() {
+  const { employee, signOut } = useStaffEmployee();
   const qc = useQueryClient();
-  const [staff, setStaff] = useState<{ id: string; name: string; role: string } | null>(null);
   const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [checkInId, setCheckInId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
-
-  useEffect(() => {
-    const s = sessionStorage.getItem('ss.staff');
-    if (!s) { navigate('/staff-login', { replace: true }); return; }
-    setStaff(JSON.parse(s));
-  }, [navigate]);
 
   const { data: bookings, isLoading, refetch } = useQuery({
     queryKey: ['staff-bookings', selectedDate],
@@ -52,7 +56,6 @@ export default function StaffDashboard() {
       if (error) throw error;
       return data;
     },
-    enabled: !!staff,
   });
 
   const updateStatus = useMutation({
@@ -78,7 +81,7 @@ export default function StaffDashboard() {
     const { data: urlData } = supabase.storage.from('id-photos').getPublicUrl(path);
     const { error: updateErr } = await supabase.from('bookings').update({
       id_photo_url: urlData.publicUrl,
-      id_verified_by: staff?.name || 'staff',
+      id_verified_by: employee.full_name || 'staff',
       status: 'checked_in',
     }).eq('id', bookingId);
 
@@ -91,7 +94,7 @@ export default function StaffDashboard() {
 
   const handleSkipId = async (bookingId: string) => {
     const { error } = await supabase.from('bookings').update({
-      id_skip_approved_by: staff?.name || 'staff',
+      id_skip_approved_by: employee.full_name || 'staff',
       needs_id_review: true,
       status: 'checked_in',
     }).eq('id', bookingId);
@@ -101,10 +104,8 @@ export default function StaffDashboard() {
     setCheckInId(null);
   };
 
-  const handleLogout = () => {
-    sessionStorage.removeItem('ss.staff');
-    navigate('/staff-login');
-  };
+  // signOut clears the verified id; StaffGate then redirects to /staff-login.
+  const handleLogout = () => signOut();
 
   const checkInBooking = bookings?.find(b => b.id === checkInId);
 
@@ -118,7 +119,7 @@ export default function StaffDashboard() {
             <span className="font-heading text-sm font-bold">Staff</span>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-xs text-primary-foreground/70">{staff?.name}</span>
+            <span className="text-xs text-primary-foreground/70">{employee.full_name}</span>
             <Button variant="ghost" size="icon" onClick={() => refetch()} className="text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary/80">
               <RefreshCw className="h-4 w-4" />
             </Button>
